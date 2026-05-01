@@ -1,4 +1,7 @@
+import { useLanguage } from '../i18n/LanguageContext.jsx';
+
 export default function PsalmListItem({ broj, opening, hasFull, onClick }) {
+  const { t } = useLanguage();
   return (
     <button
       onClick={onClick}
@@ -13,7 +16,7 @@ export default function PsalmListItem({ broj, opening, hasFull, onClick }) {
         </span>
         {!hasFull && (
           <span className="block text-xs text-stone-500 italic mt-1 font-serif">
-            почетни стих
+            {t.openingVerse}
           </span>
         )}
       </span>
