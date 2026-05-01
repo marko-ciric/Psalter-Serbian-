@@ -81,7 +81,7 @@ export default function PsalmList({ onSelect }) {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Претражи псалме (нпр. „помилуј" или 50)"
+              placeholder="Претражи псалме (нпр. „помилуј” или 50)"
               className="w-full pl-9 pr-9 py-2.5 bg-white border border-amber-900/25 rounded-sm font-serif text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-amber-900/60 focus:ring-1 focus:ring-amber-900/30"
             />
             {search && (
