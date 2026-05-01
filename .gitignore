@@ -1,2 +1,9 @@
 node_modules/
 dist/
+
+# Capacitor iOS - Xcode derived data and build artifacts
+ios/App/Pods/
+ios/App/.build/
+ios/App/DerivedData/
+ios/.xcode.env.local
+
