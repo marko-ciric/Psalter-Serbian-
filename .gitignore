@@ -7,3 +7,8 @@ ios/App/.build/
 ios/App/DerivedData/
 ios/.xcode.env.local
 
+# Capacitor Android - Gradle build artifacts
+android/.gradle/
+android/app/build/
+android/build/
+

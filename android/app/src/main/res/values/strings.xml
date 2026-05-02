@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Псалтир</string>
+    <string name="title_activity_main">Псалтир</string>
+    <string name="package_name">rs.psalter.app</string>
+    <string name="custom_url_scheme">rs.psalter.app</string>
+</resources>
