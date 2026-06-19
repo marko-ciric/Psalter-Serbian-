@@ -21,11 +21,11 @@ src/data/
 ├── katizme.js              # 20 katizma groupings — language-neutral. Just psalm-number arrays.
 ├── pocetak.js              # SR opening lines for all 150 psalms (one short fragment each)
 ├── napomene.js             # SR liturgical notes for ~30 important psalms
-├── puniTekst.js            # SR full verse-by-verse text. 23 psalms currently.
+├── puniTekst.js            # SR full verse-by-verse text — Daničić's Septuagint Psalter, all 150 psalms.
 └── en/
-    ├── pocetak.js          # EN opening lines (150). Currently KJV-remapped — see "Open work".
+    ├── pocetak.js          # EN opening lines (150) — Brenton-derived fragments.
     ├── napomene.js         # EN liturgical notes (parity with SR, 30 entries).
-    └── puniTekst.js        # EN full text — now Brenton's Septuagint (23 psalms).
+    └── puniTekst.js        # EN full text — Brenton's Septuagint, all 150 psalms.
 ```
 
 Each `puniTekst.js` exports an object keyed by psalm number; the value is an array of verse strings (one per verse, position = verse number − 1, no inscription).
@@ -60,9 +60,11 @@ The font-size state lives in `App` (not `PsalmReader`) so it survives back/forwa
 
 ## The two translations and the LXX vs MT numbering question
 
-**Serbian** is Bishop Atanasije (Jevtić)'s translation from Church Slavonic and Greek (Septuagint). Sourced from molitvenik.in.rs.
+**Serbian** is **Đuro Daničić's Serbian Psalter (1860s, public domain)**, translated from Church Slavonic/the Septuagint with native LXX numbering. This replaced an earlier partial (23-psalm) modern translation by Bishop Atanasije (Jevtić), sourced from molitvenik.in.rs — see decision history below for why.
 
-**English** is **Brenton's English Septuagint (1851, public domain)**, sourced from `https://ebible.org/eng-Brenton/PSAnnn.htm`. This was switched from KJV in this session; see decision history below.
+**English** is **Brenton's English Septuagint (1851, public domain)**, sourced from `https://ebible.org/eng-Brenton/PSAnnn.htm`. This was switched from KJV in an earlier session.
+
+Both translations are public domain (translators died well over a century ago), which matters for an app distributed on the App Store with no other licensing in place.
 
 Both translations use **LXX/Orthodox numbering**:
 
@@ -91,6 +93,16 @@ Inscriptions ("A Psalm of David…") are **not numbered** in the data files. Bre
 
 To re-run for additional psalms, edit the `PSALMS` list at the top of the script and re-run. The output is a JS module that drops into `src/data/en/puniTekst.js`.
 
+## Tooling: Daničić verse segmentation
+
+The source text for Daničić's Psalter (obtained as a single plain-text paste, not scraped) has **no verse markers** — each psalm is continuous prose, with liturgical `Катизма N.` (kathisma) and `С л а в а:` (Gloria) markers interspersed, plus the occasional explanatory footnote in parentheses. To produce the verse arrays in `src/data/puniTekst.js`:
+
+1. Split on `Псалам N.` headers; strip kathisma/Gloria/`Средина:` marker lines and parenthetical footnote paragraphs.
+2. Split each psalm's remaining prose into sentences on `.`/`!`/`?`.
+3. Use the **English Brenton verse count** for that psalm number (`src/data/en/puniTekst.js`, both translations share LXX numbering so verse counts should match) as the target count, then mechanically merge adjacent sentences (if there are too many) or split sentences at `;`/`:`/`,` (if there are too few) until the count matches.
+
+This produces the *correct verse count* per psalm but verse **boundaries are not manually verified against the Greek/Brenton** — for liturgical use where exact verse-by-verse parallel reading matters, spot-check important psalms before relying on a specific verse number.
+
 ## Languages, UI strings, fallback
 
 UI translation strings are defined inline in `LanguageContext.jsx`'s `T` object. When you add a new UI string, add it to **both** `T.sr` and `T.en` — there's no fallback; a missing key returns `undefined`.
@@ -106,24 +118,16 @@ When a psalm has no full text (most of them), `PsalmReader` shows the opening ve
 ## Open work
 
 ### Done in the most recent session
-- Switched English full text from KJV (with manual LXX renumber) to **Brenton's English Septuagint** for the 23 existing psalms (1–8, 46, 50, 85, 89, 90, 101–103, 134, 136, 140, 142, 148–150). Verse counts match the Serbian Atanasije text exactly.
-- Updated `LanguageContext.jsx` footer attribution and the no-full-text fallback message.
-- `npm run build` clean.
-- Confirmed `pocetak.js` (SR + EN) covers all 150 numbers, no gaps or dupes.
-- Confirmed `napomene.js` SR/EN have identical 30-entry keysets.
+- English full text (Brenton's Septuagint) completed for all 150 psalms in `src/data/en/puniTekst.js`.
+- `src/data/en/pocetak.js` swapped from KJV-remapped to Brenton-derived opening lines for all 150 psalms.
+- **Serbian full text replaced entirely**: all 150 psalms in `src/data/puniTekst.js` now use Đuro Daničić's public-domain, LXX-numbered Psalter (replacing the previous 23-psalm partial Atanasije translation). Source text was supplied directly by the user (continuous prose, no verse markers) and mechanically segmented into verses using the English Brenton verse counts as targets — see "Tooling: Daničić verse segmentation" above. Verse counts now match the English file exactly for all 150 psalms; verse *boundaries* are not all manually spot-checked.
+- `npm run build` clean; spot-checked Psalms 1, 8, 50 in the live app (Serbian) for correct verse counts and rendering.
 
 ### Highest-priority remaining work
 
-1. **Fill in the remaining 127 psalms** in both languages.
-   - **SR**: fetch from `https://www.molitvenik.in.rs/psaltir_index.html` (Atanasije translation).
-   - **EN**: extend `/tmp/brenton_fetch.py`'s `PSALMS` list to all 150 and re-run.
-   - Pay attention at LXX 9, 113, 114, 115, 146, 147 — these are the LXX/MT split boundaries where Brenton was specifically needed.
+1. **Spot-check / correct verse boundaries** in the new Daničić `puniTekst.js`. The segmentation algorithm guarantees the right *count* per psalm but the split points (especially where it merged or split mid-sentence at semicolons) were not individually verified against the Greek. Important/frequently-read psalms (1, 50, 90, 103, 118, 140, 150) are good candidates to check first.
 
-2. **Swap `src/data/en/pocetak.js`** from KJV-remapped to Brenton opening lines (150 entries).
-   - Currently safe (numbering is manually remapped correctly) but **inconsistent** with the new Brenton attribution in the footer.
-   - Approach: take Brenton's verse 1 body for each psalm, truncate at a clause boundary to match the short-fragment style of the Serbian `pocetak.js`.
-
-3. **iOS App Icon and Splash** — replace Capacitor placeholders before any TestFlight/App Store submission. Needs design input.
+2. **iOS App Icon and Splash** — replace Capacitor placeholders before any TestFlight/App Store submission. Needs design input.
 
 ### Secondary polish
 - No CI workflow. A GitHub Pages or Cloudflare Pages deploy action would be a small add.
@@ -143,3 +147,4 @@ When a psalm has no full text (most of them), `PsalmReader` shows the opening ve
 
 - **2026-06**: English translation switched from KJV (with manual LXX renumber) → Brenton's Septuagint (1851). Reason: at the LXX/MT split boundaries (Ps 9, 113, 114, 115, 146, 147) the KJV remap is unfixable — KJV's verse divisions don't carve up the same way LXX does. Brenton translates directly from the Greek the Orthodox tradition uses, so verse numbers and divisions match Atanasije natively.
 - **2026-06**: Confirmed inscriptions ("A Psalm of David…") are dropped from the verse arrays — matching the Atanasije source convention and avoiding awkward verse-1 content.
+- **2026-06**: Serbian translation switched from Bishop Atanasije (Jevtić)'s modern translation (23/150 psalms, sourced from molitvenik.in.rs, copyright status unclear) → Đuro Daničić's 1860s Septuagint-numbered Serbian Psalter (all 150 psalms, public domain — translator died 1882). Reason: full-Psalter coverage from a single, unambiguously public-domain, LXX-numbered source, mirroring the same consistency rationale as the English KJV→Brenton switch. Note: the *commonly available* digitized "Daničić" text (e.g. on GitHub as part of the Daničić–Karadžić Bible) is a **later revision that renumbers the Psalms to Hebrew/Masoretic numbering** for Protestant Bible convention — that version is NOT usable here. The original LXX-numbered translation was sourced as a direct text paste (not fetched programmatically) after `svetosavlje.org`, `rastko.rs`, and `sr.wikisource.org` all proved unreachable from the sandbox (network allowlist / bot protection).
