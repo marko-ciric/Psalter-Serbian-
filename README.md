@@ -1,6 +1,25 @@
 # Псалтир Светог цара Давида
 
-A web app of the 150 Psalms of David in Serbian (Cyrillic), based on the official Serbian Orthodox translation by Bishop Atanasije (Jevtić), translated from Church Slavonic and Greek (the Septuagint).
+The 150 Psalms of David in Serbian (Cyrillic), based on the official Serbian Orthodox translation by Bishop Atanasije (Jevtić), translated from Church Slavonic and Greek (the Septuagint) — plus an English translation from Brenton's English Septuagint (1851).
+
+**This repo is mid-conversion** from a React/Vite/Capacitor web app to a **native SwiftUI, iPhone-only app**. See `CLAUDE.md` for the full status. The native app is now the primary target; the original web app is kept temporarily for reference and will be removed.
+
+## Native iOS app
+
+```
+ios/App/App.xcodeproj
+```
+
+Open in Xcode (15+, iOS 15+ deployment target) and run. Swift/SwiftUI, no third-party dependencies, no WebView.
+
+```
+ios/App/App/
+├── PsaltirApp.swift    # @main entry point
+├── Views/              # ContentView, PsalmListView, PsalmReaderView, etc.
+├── Models/             # AppStrings (i18n copy), LanguageManager
+├── Data/               # Katizme, PocetakSr/En, NapomeneSr/En, PuniTekstSr/En
+└── Extensions/         # Theme.swift (colors, font helpers)
+```
 
 ## Features
 
@@ -11,72 +30,18 @@ A web app of the 150 Psalms of David in Serbian (Cyrillic), based on the officia
 - Filter by katizma (the 20 traditional Orthodox liturgical divisions)
 - Adjustable font size in the reader
 - Previous/next navigation between psalms
-- Manuscript-inspired design with Cormorant Garamond and EB Garamond typography
+- Serbian (Atanasije Jevtić) and English (Brenton's Septuagint) translations, switchable in-app
 
-## Tech stack
+## Legacy web app (reference only)
 
-- React 18
-- Vite
-- Tailwind CSS
-- lucide-react for icons
-
-## Getting started
-
-```bash
-npm install
-npm run dev
-```
-
-Build for production:
-
-```bash
-npm run build
-```
-
-The build output goes into `dist/` and can be served from any static host (GitHub Pages, Netlify, Vercel, Cloudflare Pages).
-
-## Project structure
-
-```
-src/
-├── main.jsx              # React entry point
-├── App.jsx               # Root component, holds selected psalm state
-├── index.css             # Tailwind + global styles + parchment background
-├── data/
-│   ├── katizme.js        # The 20 katizma groupings
-│   ├── pocetak.js        # Opening line of every psalm (1–150)
-│   ├── napomene.js       # Liturgical notes for important psalms
-│   └── puniTekst.js      # Full verse-by-verse text (currently 23 psalms)
-└── components/
-    ├── Ornament.jsx
-    ├── Divider.jsx
-    ├── PsalmListItem.jsx
-    ├── PsalmList.jsx
-    └── PsalmReader.jsx
-```
-
-## Adding more psalms
-
-To add the full text of any psalm, open `src/data/puniTekst.js` and add an entry:
-
-```js
-export const PUNI_TEKST = {
-  // ...
-  42: [
-    "Као што чезне јелен за изворима вода...",
-    "Жедна је душа моја Бога живога...",
-    // one string per verse
-  ],
-};
-```
-
-The list view will automatically stop showing the "почетни стих" label once full text is present.
+`src/`, `android/`, and the root Vite/Capacitor config files are the original React implementation this native app was ported from. Not maintained going forward — see `CLAUDE.md`'s "Open work" for the plan to remove them.
 
 ## Source
 
-Translation by Епископ Атанасије (Јевтић), via [молитвеник.in.rs](https://www.molitvenik.in.rs/psaltir_index.html).
+- Serbian translation by Епископ Атанасије (Јевтић), via [молитвеник.in.rs](https://www.molitvenik.in.rs/psaltir_index.html).
+- English translation: Brenton's English Septuagint (1851, public domain), via [ebible.org](https://ebible.org/eng-Brenton/).
 
 ## License
 
 Application code: MIT.
-The Psalter text is a translation of public-domain scripture; please credit the translator (Bishop Atanasije Jevtić) when redistributing.
+The Psalter text is a translation of public-domain scripture; please credit the translator (Bishop Atanasije Jevtić) when redistributing the Serbian text.
